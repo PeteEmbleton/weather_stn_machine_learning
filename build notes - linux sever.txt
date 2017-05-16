@@ -1,0 +1,64 @@
+sudo apt-get update
+sudo apt-get install mysql-server
+
+
+
+#setup the database
+ mysql -u root -p
+ CREATE DATABASE weather_stn;
+ USE weather_stn;
+ CREATE TABLE weather_stn (ID int NOT NULL AUTO_INCREMENT, weather_stn_id INT,ambient_temp INT, ground_temp INT, air_quality INT, air_pressure INT, humidity INT, wind_direction INT, wind_speed INT, wind_gust_speed INT, rainfall INT, reading_timestamp DATETIME,  PRIMARY KEY (ID) );
+ CREATE USER 'weather_stn'@'localhost' IDENTIFIED BY '<password>';
+ GRANT ALL PRIVILEGES ON * . * TO 'weather_stn'@'localhost';
+ grant select on weather_stn.* to 'readonlyuser'@'%' identified by 'readonly';
+flush privileges;
+exit
+
+#install the python modules
+sudo apt-get install python-pip python3-pip
+
+
+sudo -H pip install --upgrade pip
+sudo -H pip3 install --upgrade pip
+sudo -H pip3 install mysqlclient
+
+
+
+sudo mkdir /scripts
+sudo chmod 755 /scripts
+cd /scripts/
+
+sudo nano get_all_data.py
+#enter the file info
+sudo chmod +x get_all_data.py
+
+
+sudo nano get_last.py
+#copy and paste the file info
+sudo chmod +x get_last.py
+
+#create the log file
+sudo touch /var/log/stnupdate.log
+sudo chmod 777 /var/log/stnupdate.log
+crontab -e
+#enter the line below
+*/3 * * * * /usr/bin/python3 /scripts/get_last.py >> /var/log/stnupdate.log
+
+
+sudo nano /etc/cron.weekly/fullupdate
+#enter the line below
+/usr/bin/python3 /scripts/get_all_data.py >> /var/log/stnupdate.log
+
+sudo chmod +x /etc/cron.weekly/fullupdate
+
+
+
+/usr/bin/python3 /scripts/get_all_data3.py
+
+#build the web server
+sudo apt-get install libapache2-mod-php php-mysql
+sudo service apache2 restart
+
+
+
+
