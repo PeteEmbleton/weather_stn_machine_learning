@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<!-- this will make map of all the weather stations -->
+<!-- change your google api key towads the bootm of the file-->
+
+<head>
+    <style>
+         #map {
+             height: 100%;
+         }
+
+         html, body {
+             height: 100%;
+             margin: 0;
+             padding: 0;
+         }
+
+    </style>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+
+        var dataSource = "https://apex.oracle.com/pls/apex/raspberrypi/weatherstation/getalllastmeasurement";
+        var weatherStations = [];
+
+        var map;
+        var markers = [];
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 2,
+                center: new google.maps.LatLng(2.8,-187.3),
+                mapTypeId: 'terrain'
+            });
+        }
+
+        // Loads weather data
+        $.getJSON( dataSource, function( data ) {
+            var items = [];
+            // console.log(data);
+            $.each(data.items, function (index, item) {
+                console.log(item);
+
+                if (item != null && item.weather_stn_lat !== undefined && item.weather_stn_long !== undefined) {
+
+                    var latLng = myLatLng = { lat: item.weather_stn_lat, lng: item.weather_stn_long };
+
+                    var marker = new google.maps.Marker({
+                        position: latLng,
+                        title: item.weather_stn_id.toString().concat(" ").concat(item.weather_stn_name),
+                        map: map
+                    });
+
+                    markers.push(marker);
+                }
+            });
+        });
+
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=<your google api key>&callback=initMap">
+    </script>
+</body>
+</html>
